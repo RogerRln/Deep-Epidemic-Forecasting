@@ -1,8 +1,15 @@
-## Welcome to Alex and Rogelio's CSE 8803 Project: Deep Epidemic Forecasting
+### Welcome to Alex and Rogelio's CSE 8803 Project: Deep Epidemic Forecasting
 
-You can use the [editor on GitHub](https://github.com/RogerRln/DeepEpidemicForecasting/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+## Abstract
+Forecasting emerging pandemics such as COVID-19 using purely data-driven models is challenging, in no small part because data is very sparse. In such a scenario, purely data-driven models need to leverage as much relevant data is available. For example, leveraging similarity between regions based on geographical closeness can be helpful but we should not limit ourselves to this type of relations. Therefore, we propose to leverage similarity between regions based on a latent space build from 'static' and 'dynamic' features from each region. Static features of a specific region include demographic information such as age structure, population density, and prevalence of comorbidities that pose an increased risk for COVID-19 complications (e.g., diabetes, cancer, kidney disease, diseases weakening the immune system, etc.). On the other hand, dynamic features are signals such as mobility, hospitalizations, confirmed cases, etc. By projecting regions into a temporal latent space (i.e. for each region and time frame, we have a different latent representation), we can leverage both static and dynamic similarity. Our specific goals are as follows. (1) Find in the literature epidemiologically relevant static and dynamic information; (2) develop a neural architecture to leverage static and dynamic similarity. By achieving these goals, we expect that a deep forecasting model will be more accurate, especially at the early stages of the pandemic.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+## Slides & Code
+
+You can find our project slides here [slides](https://github.com/RogerRln/Deep-Epidemic-Forecasting/blob/main/DOC/Project_slides.pptx)
+
+You can find our written project here [project (PDF)](https://github.com/RogerRln/Deep-Epidemic-Forecasting/blob/main/DOC/)
+
+You can find our code here [code](https://github.com/RogerRln/Deep-Epidemic-Forecasting/tree/main/SRC%20(code))
 
 ### Markdown
 
