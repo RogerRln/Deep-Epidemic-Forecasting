@@ -1,6 +1,7 @@
 ### Welcome to Alex and Rogelio's CSE 8803 Project: Deep Epidemic Forecasting
 
-<img src="https://github.com/RogerRln/Deep-Epidemic-Forecasting/blob/gh-pages/images/alex.jpg" width="200" height="200">  <img src="https://github.com/RogerRln/Deep-Epidemic-Forecasting/blob/gh-pages/images/rogelio.jpg" width="150" height="200">
+<img src="https://github.com/RogerRln/Deep-Epidemic-Forecasting/blob/gh-pages/images/alex.jpg" width="200" height="200">
+<img src="https://github.com/RogerRln/Deep-Epidemic-Forecasting/blob/gh-pages/images/rogelio.jpg" width="150" height="200">
 
 Alex (left) & Rogelio (right)
 
