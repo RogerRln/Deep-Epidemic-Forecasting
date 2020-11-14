@@ -1,6 +1,6 @@
 ### Welcome to Alex and Rogelio's CSE 8803 Project: Deep Epidemic Forecasting
 
-![Alex](images/alex.jpg |width = 100)
+![Alex](images/alex.jpg &s=200)
 
 ![Rogelio](images/rogelio.jpg| width=100)
 
