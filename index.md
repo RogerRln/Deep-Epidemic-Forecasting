@@ -1,8 +1,9 @@
 ## Welcome to Alex and Rogelio's CSE 8803 Project: Deep Epidemic Forecasting
 
-You can use the [editor on GitHub](https://github.com/RogerRln/DeepEpidemicForecasting/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+You can find our project slides here [slides](https://github.com/RogerRln/Deep-Epidemic-Forecasting/tree/main/DOC)
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+You can find our code here [code](https://github.com/RogerRln/Deep-Epidemic-Forecasting/tree/main/SRC%20(code))
+
 
 ### Markdown
 
