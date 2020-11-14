@@ -9,7 +9,6 @@ You can find our project slides here [slides](https://github.com/RogerRln/Deep-E
 
 You can find our code here [code](https://github.com/RogerRln/Deep-Epidemic-Forecasting/tree/main/SRC%20(code))
 
-
 ### Markdown
 
 Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
