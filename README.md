@@ -1,1 +1,1 @@
-# DeepEpidemicForecasting
+# Deep Epidemic Forecasting
