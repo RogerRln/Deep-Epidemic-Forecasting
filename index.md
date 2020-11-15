@@ -1,12 +1,12 @@
 ### Welcome to Alex and Rogelio's CSE8803 Project: Leveraging Regional Similarity in Deep Epidemic Forecasting
 
 
-
-<img src="images/alex.jpg" width="200" height="200"/>
 Alex Rodriguez
+<img src="images/alex.jpg" width="200" height="200"/>
 
-<img src="images/rogelio.jpg" width="150" height="200"/>
 Rogelio Rodriguez Gonzalez
+<img src="images/rogelio.jpg" width="150" height="200"/>
+
 
 
 
