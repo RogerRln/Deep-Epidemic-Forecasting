@@ -1,6 +1,7 @@
 ### Welcome to Alex and Rogelio's CSE8803 Project: Leveraging Regional Similarity in Deep Epidemic Forecasting
 
 
+
 <img src="images/alex.jpg" width="200" height="200"/>
 Alex Rodriguez
 
@@ -12,15 +13,7 @@ Rogelio Rodriguez Gonzalez
 ## Abstract
 Forecasting emerging pandemics such as COVID-19 using purely data-driven models is challenging, in no small part because data is very sparse. In such a scenario, purely data-driven models need to leverage as much relevant data is available. For example, leveraging similarity between regions based on geographical closeness can be helpful but we should not limit ourselves to this type of relations. Therefore, we propose to leverage similarity between regions based on a latent space build from 'static' and 'dynamic' features from each region. Static features of a specific region include demographic information such as age structure, population density, and prevalence of comorbidities that pose an increased risk for COVID-19 complications (e.g., diabetes, cancer, kidney disease, diseases weakening the immune system, etc.). On the other hand, dynamic features are signals such as mobility, hospitalizations, confirmed cases, etc. By projecting regions into a temporal latent space (i.e. for each region and time frame, we have a different latent representation), we can leverage both static and dynamic similarity. Our specific goals are as follows. (1) Find in the literature epidemiologically relevant static and dynamic information; (2) develop a neural architecture to leverage static and dynamic similarity. By achieving these goals, we expect that a deep forecasting model will be more accurate, especially at the early stages of the pandemic.
 
-## Slides & Code
-
-You can find our project slides here [slides](https://github.com/RogerRln/Deep-Epidemic-Forecasting/blob/main/DOC/Project_slides.pptx)
-
-You can find our written project here [project (PDF)](https://github.com/RogerRln/Deep-Epidemic-Forecasting/blob/main/DOC/)
-
-You can find our code here [code](https://github.com/RogerRln/Deep-Epidemic-Forecasting/tree/main/SRC%20(code))
-
-## Results
+## Main Results
 
 
 ```markdown
@@ -39,11 +32,17 @@ Syntax highlighted code block
 **Bold** and _Italic_ and `Code` text
 
 [Link](url) and ![Image](src)
+
 ```
 
-### Jekyll Themes
+## Slides & Code
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/RogerRln/DeepEpidemicForecasting/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+You can find our project slides here [slides](https://github.com/RogerRln/Deep-Epidemic-Forecasting/blob/main/DOC/Project_slides.pptx)
+
+You can find our written project here [project (PDF)](https://github.com/RogerRln/Deep-Epidemic-Forecasting/blob/main/DOC/)
+
+You can find our code here [code](https://github.com/RogerRln/Deep-Epidemic-Forecasting/tree/main/SRC%20(code))
+
 
 ### Support or Contact
 
