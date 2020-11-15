@@ -1,4 +1,4 @@
-### Welcome to Alex and Rogelio's CSE 8803 Project: Deep Epidemic Forecasting
+### Welcome to Alex and Rogelio's CSE8803 Project: Leveraging Regional Similarity in Deep Epidemic Forecasting
 
 
 <img src="images/alex.jpg" width="200" height="200"/>
@@ -22,7 +22,6 @@ You can find our code here [code](https://github.com/RogerRln/Deep-Epidemic-Fore
 
 ## Results
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
 
 ```markdown
 Syntax highlighted code block
@@ -41,8 +40,6 @@ Syntax highlighted code block
 
 [Link](url) and ![Image](src)
 ```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
 
 ### Jekyll Themes
 
