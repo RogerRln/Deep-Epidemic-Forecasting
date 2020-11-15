@@ -17,10 +17,10 @@ Forecasting emerging pandemics such as COVID-19 using purely data-driven models 
 
 # Static Module
 PCA of regional static features
-<img src="images/figures/PCA.png" width="200" height="200"/>
+<img src="images/figures/PCA.png" width="600" height="500"/>
 
 Projection of clusters onto US Map
-<img src="images/figures/USMap_clusters.png" width="200" height="200"/>
+<img src="images/figures/USMap_clusters.png" width="600" height="500"/>
 
 
 
