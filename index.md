@@ -12,7 +12,7 @@ Forecasting emerging pandemics such as COVID-19 using purely data-driven models 
 
 ## Static Module
 
-<img src="images/figures/PCA.png" width="450" height="350"/><img src="images/figures/USMap_clusters.png" width="450" height="350"/>
+<img src="images/figures/PCA.png" width="400" height="300"/><img src="images/figures/USMap_clusters.png" width="450" height="350"/>
 <br> We use 24 "static" regional features to cluster US states. PCA  with k-means clustering (left) and clustering projection onto US map (right).
 
 
