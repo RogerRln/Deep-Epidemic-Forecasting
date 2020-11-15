@@ -1,12 +1,7 @@
 ### Welcome to Alex and Rogelio's CSE8803 Project: Leveraging Regional Similarity in Deep Epidemic Forecasting
 
-
-Alex Rodriguez
-<img src="images/alex.jpg" width="200" height="200"/>
-
-Rogelio Rodriguez Gonzalez
-<img src="images/rogelio.jpg" width="150" height="200"/>
-
+<img src="images/alex.jpg" width="200" height="200"/> <img src="images/rogelio.jpg" width="150" height="200"/>
+<br>Alex Rodriguez (Left) & Rogelio Rodriguez Gonzalez (Right)
 
 
 
@@ -16,11 +11,9 @@ Forecasting emerging pandemics such as COVID-19 using purely data-driven models 
 ## Main Results
 
 # Static Module
-PCA of regional static features
-<img src="images/figures/PCA.png" width="600" height="500"/>
 
-Projection of clusters onto US Map
-<img src="images/figures/USMap_clusters.png" width="600" height="500"/>
+<img src="images/figures/PCA.png" width="450" height="350"/><img src="images/figures/USMap_clusters.png" width="450" height="350"/>
+<br> We use "static" regional features to cluster US states. PCA  with k-means clustering (left) and clustering projections on the US map (right).
 
 
 
