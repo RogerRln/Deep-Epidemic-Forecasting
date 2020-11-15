@@ -13,7 +13,10 @@ Forecasting emerging pandemics such as COVID-19 using purely data-driven models 
 # Static Module
 
 <img src="images/figures/PCA.png" width="450" height="350"/><img src="images/figures/USMap_clusters.png" width="450" height="350"/>
-<br> We use "static" regional features to cluster US states. PCA  with k-means clustering (left) and clustering projections on the US map (right).
+<br> We use "static" regional features to cluster US states. PCA  with k-means clustering (left) and clustering projection onto US map (right).
+
+<img src="images/figures/different_groups_USMap.png" width="800" height="500"/>
+<br> We further analyze how the clusters change using subsets of static data instead of all data together. We partition our data set into groups containing only demographics, only comorbidities, only social behavior, etc. The map on the bottom right was generated using all data together.
 
 
 
