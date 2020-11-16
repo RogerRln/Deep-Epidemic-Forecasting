@@ -465,7 +465,7 @@ table_state_data.Cases = covid_state_data.positive(index_vec);
 % rows) of table_state_country
 table_state_data_ratio = table_state_country_ratio(1:end-2,:);
 
-% Using NORMALIZED DATA
+% STANDARDIZE Data
 data = table_state_data_ratio(:,3:end);
 data = table2array(data);
 mean_data = mean(data);
@@ -473,16 +473,32 @@ std_data = std(data);
 data = (data-mean_data)./std_data;
 %data = data./std_data;
 table_state_data_ratio(:,3:end) = array2table(data);
+%writetable(table_state_data_ratio, 'table_state_data_standardized.csv')
 
 %table_state_data_ratio = readtable('train_static_states.csv');
 
 % Do not include HPSAUnderservedPop variable (not info for all states)
 variable_names = table_state_data_ratio.Properties.VariableNames;
 table_state_data_ratio = table_state_data_ratio(:,[variable_names(1:15) variable_names(17:end)]);
-%table_state_data_ratio = table_state_data_ratio(:,[variable_names(1:15) variable_names(17:end)]);
 
-% Using NORMALIZED DATA
-% table_state_data_ratio = table_state_data_ratio(:,[ variable_names(1:3) variable_names(5:end)]);
+variable_names = table_state_data_ratio.Properties.VariableNames;
+
+% Analyze Comorbidity data
+%table_state_data_ratio = table_state_data_ratio(:,[variable_names(1) variable_names(5) variable_names(7:11)]);
+
+% Analyze socioeconomic factors 
+%table_state_data_ratio = table_state_data_ratio(:,[variable_names(1) variable_names(15) variable_names(22:23) variable_names(26)]);
+
+% Analyze hospital capacity
+%table_state_data_ratio = table_state_data_ratio(:,[variable_names(1) variable_names(12:14)]);
+
+% Analyze social behavior
+%table_state_data_ratio = table_state_data_ratio(:,[variable_names(1) variable_names(17:21) variable_names(24:26)]);
+
+% Analyze demographics
+%table_state_data_ratio = table_state_data_ratio(:,[variable_names(1) variable_names(3:4) variable_names(6) variable_names(16)]);
+
+
 
 
 % For the clustering analysis we are not using total population neither
@@ -495,8 +511,6 @@ for kc = 1:10
 
     [clustering_id, c, sumd] = kmeans(table2array(table_state_data_ratio(:,column_start:end)), k);
     
-    % Using NORMALIZED DATA
-%     [clustering_id, c, sumd] = kmeans(table2array(table_state_data_ratio(:,3:end)), k);
     sumwithind(kc) = mean(sumd);
 end
 figure(2)
@@ -504,9 +518,9 @@ plot(sumwithind, 'ko-', 'linewidt', 2)
 
 xlabel('k')
 ylabel('Average within-cluster sum of squares')
-title([{'K-means clustering using all data'; 'but total population and Pop Density (relative values)'}])
+title('K-means clustering using standarized data')
 set(gca, 'fontsize', 13)
-%file_name = './figures/within_cluster_k_relative_Nopopulation_NoDensity';
+file_name = './figures/k_means_avg_withincluster';
 %saveas(gcf, file_name,'pdf')
 %saveas(gcf, file_name,'png')
 
@@ -526,9 +540,7 @@ ylabel('COVID-19 cumulative cases')
 legend('Cluster 1','Cluster 2','Cluster 3')
 legend box off
 set(gca, 'fontsize', 13, 'Xscale', 'log', 'Yscale', 'log')
-
-
-%file_name = './figures/k3_covideaths_vs_covidcases_NoPop_NoDensity_k2';
+file_name = './figures/k3_covideaths_vs_covidcases';
 %saveas(gcf, file_name,'pdf')
 %saveas(gcf, file_name,'png')
 
@@ -544,9 +556,7 @@ ylabel('Number of Adults per 100k pop with \geq 1 chronic condition')
 legend('Cluster 1','Cluster 2','Cluster 3', 'Cluster centroid')
 legend box off
 set(gca, 'fontsize', 13)
-
-
-%file_name = './figures/k3_elderlys_vs_chronicCond_NoPop_NoDensity_k2';
+file_name = './figures/k3_elderlys_vs_chronicCond_NoPop_NoDensity';
 %saveas(gcf, file_name,'pdf')
 %saveas(gcf, file_name,'png')
 
@@ -554,10 +564,6 @@ set(gca, 'fontsize', 13)
 
 %% PCA analysis
 
-%k = 3; % number of clusters
-%[clustering_id, c, sumd] = kmeans(table2array(table_state_data_ratio(1:end-1, 3:end-1)), k);
-
-%[coeff,score,latent,tsquared,explained,mu] = pca(table2array(table_state_country(1:end-1,3:end-1)));
 [coeff,score,latent,tsquared,explained,mu] = pca(table2array(table_state_data_ratio(:, column_start:end)));
 
 figure(5)
@@ -572,8 +578,7 @@ legend box off
 set(gca, 'fontsize', 13, 'fontweight', 'bold')
 title('PCA')
 set(gcf, 'position',  [440   228   739   570])
-file_name = './figures/PCA_NoPop_NoDensity_ratios_k2';
-%file_name = './figures/PCA_NoPop_ratios';
+file_name = './figures/PCA';
 %saveas(gcf, file_name,'pdf')
 %saveas(gcf, file_name,'png')
 
@@ -593,6 +598,11 @@ state_corr_data.Properties.VariableNames = {'Deaths', 'Cases', 'PoP', 'PoPDen', 
 figure(6)
 corrplot(state_corr_data)
 set(gca, 'fontsize', 13)
+set(gcf, 'position',  [440   228   739   570])
+file_name = './figures/corrplot_covidvstatic';
+%saveas(gcf, file_name,'pdf')
+%saveas(gcf, file_name,'png')
+
 
 %% Map clustering analysis to the USA map
 
@@ -605,7 +615,7 @@ indexHawaii = strcmp('Hawaii',names_map);
 indexAlaska = strcmp('Alaska',names_map);
 indexConus = 1:numel(states);
 indexConus(indexHawaii|indexAlaska) = []; 
-names_map = [names_map(1) names_map(3:10) names_map(12:end)];
+names_map = [names_map(1) names_map(3:10) names_map(12:end)]; % exluce Alaska and Hawaii
 color_id = [];
 colors_map = [];
 blue = [0 0 1];
@@ -653,5 +663,8 @@ for k = 1:3
     setm(ax(k), 'Frame', 'off', 'Grid', 'off',...
       'ParallelLabel', 'off', 'MeridianLabel', 'off')
 end
-title('Projecting k-means clusters onto US map', 'fontsize', 15)
+title('K-means clustering projection onto US map', 'fontsize', 15)
 set(gcf, 'position',  [440   228   739   570])
+file_name = './figures/USMap_clusters';
+%saveas(gcf, file_name,'pdf')
+%saveas(gcf, file_name,'png')
