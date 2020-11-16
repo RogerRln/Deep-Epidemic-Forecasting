@@ -1,0 +1,670 @@
+clc
+clear
+%% Reading data of mask usage and county-state IDs
+
+mask_usage = readmatrix('./data/mask-use-by-county.csv'); % never (col 1), rare (col 2), some (col 3), freq (col 4), always (col 5)
+census_data = readmatrix('./data/co-est2019-alldata2.csv'); % pop estimare 2019 (col 19), satate id (col 4), county id (col 5)
+
+% 316 extract the first digit and from 317 so on extract the first two
+% digits
+
+% FIPS_ID mask usage
+fips_mask = mask_usage(:,1);
+single_digit_id = num2str(fips_mask(1:316,1));
+double_digit_id = num2str(fips_mask(317:end,1));
+
+single_digit_stateid = single_digit_id(1:end,1);
+double_digit_stateid = double_digit_id(1:end,1:2);
+state_id = [str2num(single_digit_stateid); str2num(double_digit_stateid)];
+
+single_digit_countyid = single_digit_id(1:end,2:end);
+double_digit_countyid = double_digit_id(1:end,3:end);
+county_id = [str2num(single_digit_countyid); str2num(double_digit_countyid)];
+
+mask_data = [state_id county_id mask_usage(:,2:end)]; % col 1: state id, col 2: county id
+census = [census_data(:,4) census_data(:,5) census_data(:,19)]; % col 1: state id, col 2: county id, col 3: population estimate (2019)
+
+% obtain population per county based on mask usage state ids and county ids
+unique_stateid_mask = unique(state_id);
+pop2019_county = [];
+for i = 1:length(unique_stateid_mask)
+
+    census_state = census(census(:,1) == unique_stateid_mask(i), :);
+    mask_state = mask_data(mask_data(:,1) == unique_stateid_mask(i),:);
+   
+    countis_fromcensus = ismember(census_state(:,2), mask_state(:,2));
+    pop2019_county = [pop2019_county; census_state(countis_fromcensus,3)];
+
+end
+
+mask_data = [mask_data pop2019_county]; % col 1: state id, col 2: county id, never (col 3), rare (col 4), some (col 5), freq (col 6), always (col 7), col 8: population estimates (2019)
+
+% obtain weighted average per state of mask usage
+state_maskusage_weighted = zeros(length(unique_stateid_mask), 6);
+
+for i = 1:length(unique_stateid_mask)
+    state_mask_data = mask_data(mask_data(:,1) == unique_stateid_mask(i), :); % include mask usage levels per state for all state's counties
+    
+    % weighted average of 'never' using mask 
+    w_average_never = sum(state_mask_data(:,3).*state_mask_data(:,end))/sum(state_mask_data(:,end));
+    
+    % weighted average of 'rare' using mask 
+    w_average_rare = sum(state_mask_data(:,4).*state_mask_data(:,end))/sum(state_mask_data(:,end));
+    
+    % weighted average of 'sometimes' using mask 
+    w_average_some = sum(state_mask_data(:,5).*state_mask_data(:,end))/sum(state_mask_data(:,end));
+    
+    % weighted average of 'frequent' using mask 
+    w_average_freq = sum(state_mask_data(:,6).*state_mask_data(:,end))/sum(state_mask_data(:,end));
+    
+    % weighted average of 'always' using mask 
+    w_average_always = sum(state_mask_data(:,7).*state_mask_data(:,end))/sum(state_mask_data(:,end));
+    
+    % save data
+    state_maskusage_weighted(i,:) = [unique_stateid_mask(i) w_average_never w_average_rare w_average_some w_average_freq w_average_always ];
+    
+end
+
+
+fips_codes = readtable('./data/fips_codes.csv');
+states = table2array(fips_codes(:,2));
+
+for i = 1:length(unique_stateid_mask)
+    state_indx = find(states == unique_stateid_mask(i),1);
+    names(i) = table2cell(fips_codes(state_indx,1));
+    
+end
+
+%% Compare total population and population density of states
+
+total_population = [];
+total_population = [census(census(:,2) == 0, 1)  census(census(:,2) == 0, 3)];
+total_population  = [total_population; [72 3193694]]; % adding PR population
+pop_density = readtable('./data/pop_density.csv'); % col 1: state names, col 23: pop density from 2010
+
+
+fips_codes = readtable('./data/fips_codes.csv');
+state_ids_pop = total_population(:,1);
+states_density = zeros(length(state_ids_pop), 1);
+for i = 1:length(state_ids_pop)
+    state_name = fips_codes(find(table2array(fips_codes(:,2)) == state_ids_pop(i),1), 3);
+    state_indx = strcmp(table2cell(pop_density(:,1)), table2cell(state_name));
+    density =  pop_density(find(state_indx), 23); % obtain density of  specific state
+    states_density(i) = table2array(density);
+end
+
+total_population  = [total_population states_density]; % col 1: state id, col 2: total population, col 3: population density
+names_pop = [names 'PR'];
+
+%% demographics and health risk factors
+% Adding the chronic disease prevalence from the CDC
+
+% Number of adults with >= 1(from 6) chronic conditions increasing risk for coronavirus disease 
+% complications and percentage of total in each state, 2017 Behavioral Risk Factor Surveillance System, United States*
+total_pop_healthrisk = zeros(size(total_population,1), size(total_population,2)+2);
+chronic_prevalence = readtable('./data/chronic_prevalence.csv');
+chronic_prevalence_stateid = chronic_prevalence(:,1);
+chronic_prevalence_stateid = table2cell(chronic_prevalence_stateid);
+
+% final description of data
+% Col 1: state id (including PR), Col 2: total population, Col 3: population density, Col
+% 4: number of adults with chronic conditions increasing covid risk, Col 5:
+% percentage of adults at risk
+total_pop_healthrisk(:,1:3) =  total_population;
+total_pop_healthrisk(1:end-1,4:5) =  table2array(chronic_prevalence(strcmp(chronic_prevalence_stateid, names_pop'), 2:3));
+
+%% Demographics and health risk factors from the Yu group at UC Berkeley
+
+health_demo = readtable('./data/county_data_abridged.csv');
+ids_PR = (health_demo.STATEFP == 72);
+
+census = [census; health_demo.STATEFP(ids_PR) health_demo.COUNTYFP(ids_PR) health_demo.PopulationEstimate2018(ids_PR)];
+
+
+% variables I want
+% MedianAge2010
+% DiabetesPercentage
+% HeartDiseaseMortality
+% StrokeMortality
+% Smokers_Percentage
+% RespMortalityRate2014
+% TotalM_D__s_TotNon_FedandFed2017 % number of total meds per county
+% x_Hospitals
+% x_ICU_beds
+% SVIPercentile % the county's overall percentile ranking indicating the CDC's Social Vulnerability Index (SVI)
+% HPSAUnderservedPop % estimated underserved population served by the full-time equivalent (FTE) health care practitioners within a HPSA	
+
+health_demo_keyvar = health_demo{1:end, {'STATEFP', 'COUNTYFP', 'MedianAge2010', 'DiabetesPercentage',  'HeartDiseaseMortality', 'StrokeMortality', 'Smokers_Percentage', 'RespMortalityRate2014', 'TotalM_D__s_TotNon_FedandFed2017', 'x_Hospitals', 'x_ICU_beds', 'SVIPercentile', 'HPSAUnderservedPop', 'PopulationEstimate65_2017', 'PopulationEstimate2018' }};
+unique_state_ids = unique(census(:,1));
+
+for i = 1:length(unique_state_ids)
+    %census_state = census(census(:,1) == unique_state_ids(i), :);
+    health_sate =  health_demo_keyvar(health_demo_keyvar(:,1) == unique_state_ids(i), :);
+    
+    %counties_wpopdata_forhealth = ismember(health_sate(:,2), census_state(:,2)); % logic vector when the county id from health matches the one from census
+    %counties_wpopdata_forcensus = ismember(census_state(:,2), health_sate(:,2)); % logic vector when the county id from census matches the one from health
+   
+    % weighted median age per state
+    valid_age = ~isnan(health_sate(:,3));
+    valid_pop = ~isnan(health_sate(:,end));
+    valid_age = valid_age & valid_pop;
+    w_median_age(i) = sum(health_sate(valid_age, 3).*health_sate(valid_age,end))/sum(health_sate(valid_age,end));
+    
+    % weighted Diabetes percentage
+    valid_diabetes = ~isnan(health_sate(:, 4));
+    valid_pop = ~isnan(health_sate(:,end));
+    valid_diabetes = valid_diabetes & valid_pop;
+    w_diabetes(i) = sum(health_sate(valid_diabetes, 4).*health_sate(valid_diabetes,end))/sum(health_sate(valid_diabetes,end));
+    
+    % weighted heart disease mortality rate (per 100k)
+    valid_hearth = ~isnan(health_sate(:, 5));
+    valid_pop = ~isnan(health_sate(:,end));
+    valid_hearth = valid_hearth & valid_pop;
+    w_heartdisease(i) = sum(health_sate(valid_hearth, 5).*health_sate(valid_hearth,end))/sum(health_sate(valid_hearth,end));
+    
+    % weighted stroke mortality rate (per 100k)
+    valid_stroke = ~isnan(health_sate(:, 6));
+    valid_pop = ~isnan(health_sate(:,end));
+    valid_stroke = valid_stroke & valid_pop;
+    w_stroke(i) = sum(health_sate(valid_stroke, 6).*health_sate(valid_stroke,end))/sum(health_sate(valid_stroke,end));
+
+    % weighted smoke percentage
+    valid_smoke = ~isnan(health_sate(:, 7));
+    valid_pop = ~isnan(health_sate(:,end));
+    valid_smoke = valid_smoke & valid_pop;
+    w_smokepercentage(i) = sum(health_sate(valid_smoke, 7).*health_sate(valid_smoke,end))/sum(health_sate(valid_smoke,end));
+    
+    % weighted respiratory mortality rate (year 2014)
+    valid_respiratory = ~isnan(health_sate(:, 8));
+    valid_pop = ~isnan(health_sate(:,end));
+    valid_respiratory = valid_respiratory & valid_pop;
+    w_respiratory(i) = sum(health_sate(valid_respiratory, 8).*health_sate(valid_respiratory,end))/sum(health_sate(valid_respiratory,end));
+    
+    % total doctors per state
+    valid_doctors = ~isnan(health_sate(:, 9));
+    md_state(i) = sum(health_sate(valid_doctors, 9));
+    
+    % total hospitals 
+    valid_hospitals = ~isnan(health_sate(:, 10));
+    hospitals_state(i) = sum(health_sate(valid_hospitals, 10));
+    
+    % total ICU beds 
+    valid_icu = ~isnan(health_sate(:, 11));
+    icu_state(i) = sum(health_sate(valid_icu, 11));
+    
+    % weighted SIVpercentile
+    valid_siv = ~isnan(health_sate(:, 12));
+    valid_pop = ~isnan(health_sate(:,end));
+    valid_siv = valid_siv & valid_pop;
+    w_SIV(i) = sum(health_sate(valid_siv, 12).*health_sate(valid_siv,end))/sum(health_sate(valid_siv,end));
+    
+    % Estimated underserved population by health care practitioners
+    valid_underserved = ~isnan(health_sate(:, 13));
+    underservedpop_state(i) = sum(health_sate(valid_underserved, 13));
+    
+    % Estimated population of 65+ age group 2017
+    valid_65 = ~isnan(health_sate(:, 14));
+    elder_state(i) = sum(health_sate(valid_65, 14));
+
+end
+
+% 'STATEFP', 'MedianAge2010', 'DiabetesPercentage',  'HeartDiseaseMortality', 'StrokeMortality', 'Smokers_Percentage', 'RespMortalityRate2014', 'TotalM_D__s_TotNon_FedandFed2017', 'x_Hospitals', 'x_ICU_beds', 'SVIPercentile', 'HPSAUnderservedPop' 
+state_health_demo = [unique_state_ids w_median_age' w_diabetes' w_heartdisease' w_stroke' w_smokepercentage' w_respiratory' md_state' hospitals_state' icu_state' w_SIV' underservedpop_state' elder_state'];
+  
+%% Consolidate chronic prevalence, health features and mask usage data 
+% in a singel STATE matrix
+
+all_state_data = zeros(size(state_health_demo,1), 22);
+all_state_data(:,1:5) = total_pop_healthrisk; % total pop, pop density, and adults with >= chronic coditions increasing covid risk
+all_state_data(:, 6:17) = state_health_demo(:,2:end); % demographics and health factors
+all_state_data(1:end-1,18:end) = state_maskusage_weighted(:,2:end); % mask usage data
+table_state_data = array2table(all_state_data);
+table_state_data.Properties.VariableNames = {'STATEFP', 'PopulationEstimate2019', 'PopulationDensity2010', 'NumAdultsChronicCond', 'PercAdultsChronicCond', 'MedianAge2010', ...
+    'DiabetesPercentage',  'HeartDiseaseMortality', 'StrokeMortality', 'Smokers_Percentage', 'RespMortalityRate2014', 'TotalM_D__s_TotNon_FedandFed2017', 'x_Hospitals', ...
+    'x_ICU_beds', 'SVIPercentile', 'HPSAUnderservedPop', 'PopulationEstimate65_2017', 'MaskNever' , 'MaskRare', 'MaskSome', 'MaskFreq', 'MaskAlways'};
+
+table_state_data.STATEAbbrv = names_pop';
+%writetable(table_state_data, 'table_state_data.csv')
+
+% take ratio per 100K instead of absolute numbers for some of the variables
+% (e.g., Num of adults with chronic conditions with increased risk for
+% Covid)
+table_state_data_ratio = table_state_data;
+table_state_data_ratio.NumAdultsChronicCond = (table_state_data_ratio.NumAdultsChronicCond./table_state_data_ratio.PopulationEstimate2019).*1e5;
+
+table_state_data_ratio.TotalM_D__s_TotNon_FedandFed2017 = (table_state_data_ratio.TotalM_D__s_TotNon_FedandFed2017./table_state_data_ratio.PopulationEstimate2019).*1e5;
+
+table_state_data_ratio.HPSAUnderservedPop = (table_state_data_ratio.HPSAUnderservedPop./table_state_data_ratio.PopulationEstimate2019).*1e5;
+
+table_state_data_ratio.PopulationEstimate65_2017 = (table_state_data_ratio.PopulationEstimate65_2017./table_state_data_ratio.PopulationEstimate2019).*1e5;
+
+table_state_data_ratio.x_Hospitals = (table_state_data_ratio.x_Hospitals./table_state_data_ratio.PopulationEstimate2019).*1e5;
+
+table_state_data_ratio.x_ICU_beds = (table_state_data_ratio.x_ICU_beds./table_state_data_ratio.PopulationEstimate2019).*1e5;
+
+%% %% Adding US Country information to state table
+
+    
+% Population US (2019 ESTIMATE): 328,239,523
+pop_us = 328239523;
+% Population density (2019 census): 87.4
+popdensity_us = 87.4;
+% Numadultschroniccond: 111943278
+numadultswChronicCond = 111943278;
+% Percentage of adults chroniccond = 45.4
+percentagewChronicCond = 45.4;
+% median age: 37.9
+medianage_us = 37.9;
+% Diabetes percentage = 10.5
+diabetesperc_us = 10.5;
+% Hearth Disease mortality rate = 200
+hearthmortality_us = 200;
+% Stroke mortality rate = 42
+strokemortality_us = 42;
+% Smokers percentage  = 14
+smokersperc_us = 14;
+% Respiratory mortality = 52.92
+respmortality_us = 52.92;
+
+ % total doctors for US
+ total_docs = sum(table_state_data.TotalM_D__s_TotNon_FedandFed2017);
+ % total hospitals US
+ total_hosp = sum(table_state_data.x_Hospitals);
+ % total ICU beds US
+ total_icu = sum(table_state_data.x_ICU_beds);
+ % SIVpercentile for US
+ valid_siv = ~isnan(table_state_data.SVIPercentile);
+ valid_pop = ~isnan(table_state_data.PopulationEstimate2019);
+ valid_siv = valid_siv & valid_pop;
+ SVIpercentile_US = sum(table_state_data.SVIPercentile(valid_siv).*table_state_data.PopulationEstimate2019(valid_siv))/sum(table_state_data.PopulationEstimate2019(valid_siv));
+ % Underserved people
+ total_underserved = sum(table_state_data.HPSAUnderservedPop);
+ % Total elderly people (>= 65 yrs old)
+ total_elderly = sum(table_state_data.PopulationEstimate65_2017);
+ % Masknever for US
+ MaskNever_US = sum(table_state_data.MaskNever.*table_state_data.PopulationEstimate2019)/sum(table_state_data.PopulationEstimate2019);
+ % MaskRare for US
+ MaskRare_US = sum(table_state_data.MaskRare.*table_state_data.PopulationEstimate2019)/sum(table_state_data.PopulationEstimate2019);
+ % MaskSome for US
+ MaskSome_US = sum(table_state_data.MaskSome.*table_state_data.PopulationEstimate2019)/sum(table_state_data.PopulationEstimate2019);
+ % MaskFreq for US
+ MaskFreq_US = sum(table_state_data.MaskFreq.*table_state_data.PopulationEstimate2019)/sum(table_state_data.PopulationEstimate2019);
+ % MaskFreq for US
+ MaskAlways_US = sum(table_state_data.MaskAlways.*table_state_data.PopulationEstimate2019)/sum(table_state_data.PopulationEstimate2019);
+ %name US
+ name_US = 'US';
+ fipcode_us = 0;
+
+table_state_country = table_state_data(:,1:end);
+country_info = [fipcode_us pop_us popdensity_us numadultswChronicCond percentagewChronicCond medianage_us diabetesperc_us hearthmortality_us strokemortality_us...
+    smokersperc_us respmortality_us total_docs total_hosp total_icu SVIpercentile_US total_underserved total_elderly MaskNever_US MaskRare_US...
+    MaskSome_US MaskFreq_US MaskAlways_US];
+country_table = array2table(country_info);
+country_table.Properties.VariableNames = {'STATEFP', 'PopulationEstimate2019', 'PopulationDensity2010', 'NumAdultsChronicCond', 'PercAdultsChronicCond', 'MedianAge2010', ...
+    'DiabetesPercentage',  'HeartDiseaseMortality', 'StrokeMortality', 'Smokers_Percentage', 'RespMortalityRate2014', 'TotalM_D__s_TotNon_FedandFed2017', 'x_Hospitals', ...
+    'x_ICU_beds', 'SVIPercentile', 'HPSAUnderservedPop', 'PopulationEstimate65_2017', 'MaskNever' , 'MaskRare', 'MaskSome', 'MaskFreq', 'MaskAlways'};
+country_table.STATEAbbrv = name_US;
+
+table_state_country = [table_state_country;country_table];
+%writetable(table_state_country, 'table_state_includingUS.csv')
+
+table_state_country_ratio = table_state_country;
+
+table_state_country_ratio.NumAdultsChronicCond = (table_state_country_ratio.NumAdultsChronicCond./table_state_country_ratio.PopulationEstimate2019).*1e5;
+
+table_state_country_ratio.TotalM_D__s_TotNon_FedandFed2017 = (table_state_country_ratio.TotalM_D__s_TotNon_FedandFed2017./table_state_country_ratio.PopulationEstimate2019).*1e5;
+
+table_state_country_ratio.HPSAUnderservedPop = (table_state_country_ratio.HPSAUnderservedPop./table_state_country_ratio.PopulationEstimate2019).*1e5;
+
+table_state_country_ratio.PopulationEstimate65_2017 = (table_state_country_ratio.PopulationEstimate65_2017./table_state_country_ratio.PopulationEstimate2019).*1e5;
+
+table_state_country_ratio.x_Hospitals = (table_state_country_ratio.x_Hospitals./table_state_country_ratio.PopulationEstimate2019).*1e5;
+
+table_state_country_ratio.x_ICU_beds = (table_state_country_ratio.x_ICU_beds./table_state_country_ratio.PopulationEstimate2019).*1e5;
+
+%writetable(table_state_country_ratio, 'table_state_includingUS_ratios.csv')
+
+
+%% 3 years (2017-2019) average US state poverty rates
+
+names_abbrev = readtable('./data/state_abbrv.csv');
+% Includes US level data
+poverty_original = readtable('./data/Poverty_StateLevel.csv');
+poverty_original = [poverty_original(1:20,:); poverty_original(22:end,:); poverty_original(21,:)];
+
+for i = 1:size(poverty_original,1)-1
+    indxes(i) = find(strcmp(names_abbrev.State(i), poverty_original.State));
+end
+
+poverty = [poverty_original(indxes,:); poverty_original(end,:)];
+poverty.Properties.VariableNames = {'StateName', 'PovertyRate'};
+
+
+% Includes US level data
+% Income inequality 
+income_inequality = readtable('./data/IncomeInequality_Gini.csv');
+actual = '2014-2018';
+income_inequality = income_inequality(strcmp(income_inequality.TimeFrame, actual), {'Name', 'Data'});
+income_inequality.Properties.VariableNames = {'StateName', 'GiniCoeff'};
+
+
+%% Average percentage of people staying at home per day (Aug 2020)
+
+% Does not include US level data
+perc_stayhome = readtable('./data/state_data_percStayingHome.csv');
+perc_stayhome = perc_stayhome(:, {'StateName', 'ValueOfSelectedMetric'});
+for i = 1:size(perc_stayhome,1)
+    indxes(i) = find(strcmp(names_abbrev.State(i), perc_stayhome.StateName));
+end
+perc_stayhome = perc_stayhome(indxes,:);
+US_stayhome = sum(perc_stayhome.ValueOfSelectedMetric.*table_state_country.PopulationEstimate2019(1:end-2))/sum(table_state_country.PopulationEstimate2019(1:end-2));
+US_levelData = {'US', US_stayhome};
+perc_stayhome = [perc_stayhome; US_levelData];
+perc_stayhome.Properties.VariableNames = {'StateName', 'PercPop_StayHome'};
+
+% Average number of daily trips (Aug 2020), We will need to normalize this
+% one by the total state population
+% Does not include US level data
+trips_day = readtable('./data/state_data_AvgDailyTrips.csv');
+trips_day = trips_day(:, {'StateName', 'ValueOfSelectedMetric'});
+for i = 1:size(trips_day,1)
+    indxes(i) = find(strcmp(names_abbrev.State(i), trips_day.StateName));
+end
+trips_day = trips_day(indxes,:);
+US_avgtrips = sum(trips_day.ValueOfSelectedMetric.*table_state_country.PopulationEstimate2019(1:end-2))/sum(table_state_country.PopulationEstimate2019(1:end-2));
+US_levelData = {'US', US_avgtrips};
+trips_day = [trips_day; US_levelData];
+trips_day.Properties.VariableNames = {'StateName', 'Avg_DailyTrip'};
+%% Fraction of people spending 6 hours or more away from home that day, based on SafeGraph mobility data
+% As of Nov 6th 2020
+% Does not include US level data
+full_timeworkers = readtable('./data/covidcast-safegraph-full_time_work_prop-2020-11-06-to-2020-11-06.csv');
+full_timeworkers = full_timeworkers(:, {'geo_value','value'});
+full_timeworkers.geo_value = upper(full_timeworkers.geo_value);
+for i = 1:size(full_timeworkers,1)-1
+    indxes(i) = find(strcmp(names_abbrev.Code(i), full_timeworkers.geo_value));
+end
+
+full_timeworkers = full_timeworkers(indxes,:);
+US_fullwork = sum(full_timeworkers.value.*table_state_country.PopulationEstimate2019(1:end-2))/sum(table_state_country.PopulationEstimate2019(1:end-2));
+US_levelData = {'US', US_fullwork};
+full_timeworkers = [full_timeworkers; US_levelData];
+full_timeworkers.Properties.VariableNames = {'geo_value', 'FracPopSpending6+OutHome'};
+%% Percentage of people who know someone in their local community with COVID-like symptoms, based on surveys of Facebook users
+% As of Nov 8th 2020
+% Does not include US level data
+community_cli = readtable('./data/covidcast-fb-survey-smoothed_hh_cmnty_cli-2020-11-08-to-2020-11-08.csv');
+community_cli = community_cli(:, {'geo_value', 'value'});
+community_cli.geo_value = upper(community_cli.geo_value);
+for i = 1:size(community_cli,1)
+    indxes(i) = find(strcmp(names_abbrev.Code(i), community_cli.geo_value));
+end
+community_cli = community_cli(indxes,:);
+US_levelData = {'US', NaN};
+community_cli = [community_cli; US_levelData];
+community_cli.Properties.VariableNames = {'geo_value', 'PercPopCommunityCovid'};
+%% Percentage of daily doctor visits that are due to COVID-like symptoms
+% As of Nov 6th 2020
+% Does not include US level data
+doctor_visits = readtable('./data/covidcast-doctor-visits-smoothed_adj_cli-2020-11-06-to-2020-11-06.csv');
+doctor_visits = doctor_visits(:, {'geo_value', 'value'});
+doctor_visits.geo_value = upper(doctor_visits.geo_value);
+for i = 1:size(doctor_visits,1)
+    indxes(i) = find(strcmp(names_abbrev.Code(i), doctor_visits.geo_value));
+end
+doctor_visits = doctor_visits(indxes,:);
+US_levelData = {'US', NaN};
+doctor_visits = [doctor_visits; US_levelData];
+doctor_visits.Properties.VariableNames = {'geo_value', 'PercDailyCovidDocVisit'};
+
+%% Merging data collected on Nov 10th 2020 with previously collected data
+
+PR_data = {'PR', NaN, NaN, NaN, NaN, NaN};
+merge_data = [doctor_visits(:,1) poverty(:,2) income_inequality(:,2) perc_stayhome(:,2) trips_day(:,2) full_timeworkers(:,2)];
+merge_data = [merge_data(1:end-1,:); PR_data; merge_data(end,:)];
+
+% Eliminate variable 'PercAdultsChronicCond' (not relevant state
+% information) from the table with absolute values 'table_state_country'
+table_state_country = [table_state_country(:,end) table_state_country(:,1:4) table_state_country(:,6:end-1)];
+table_state_country = [table_state_country merge_data(:,2:end)];
+writetable(table_state_country, 'table_state_includingUS.csv')
+
+% Eliminate variable 'PercAdultsChronicCond' (not relevant state
+% information) from the table with relative values 'table_state_country_ratio'
+
+% Normalize variable 'Avg_DailyTrip' with respect to state population
+table_state_country_ratio = [table_state_country_ratio(:,end) table_state_country_ratio(:,1:4) table_state_country_ratio(:, 6:end-1)];
+table_state_country_ratio = [table_state_country_ratio merge_data(:,2:end)];
+table_state_country_ratio.Avg_DailyTrip = (table_state_country_ratio.Avg_DailyTrip./table_state_country_ratio.PopulationEstimate2019).*1e5;
+writetable(table_state_country_ratio, 'table_state_includingUS_ratios.csv')
+
+%% Add COVID Cases and Deaths to compare with static state features
+
+% For correlation and clustering analysis do not include US and PR (last 2
+% rows) of table_state_country
+table_state_data = table_state_country(1:end-2,:);
+
+covid_state_data = readtable('./data/all-states-history.csv');
+covid_state_data = covid_state_data(1:56,:); % only get current data
+covid_state_data = covid_state_data(:,{'state', 'death', 'positive'}); % get death and positive cases
+
+for n = 1:(length(names_pop)-1) % do not include PR info
+    state_name = names_pop(n);
+    indx_state_covidata = find(strcmp(state_name, covid_state_data.state));
+    index_vec(n) = indx_state_covidata;
+end
+
+
+table_state_data.Deaths = covid_state_data.death(index_vec);
+table_state_data.Cases = covid_state_data.positive(index_vec);
+
+%% Find optimal K for K-means clustering
+
+
+% For correlation and clustering analysis do not include US and PR (last 2
+% rows) of table_state_country
+table_state_data_ratio = table_state_country_ratio(1:end-2,:);
+
+% STANDARDIZE Data
+data = table_state_data_ratio(:,3:end);
+data = table2array(data);
+mean_data = mean(data);
+std_data = std(data);
+data = (data-mean_data)./std_data;
+%data = data./std_data;
+table_state_data_ratio(:,3:end) = array2table(data);
+%writetable(table_state_data_ratio, 'table_state_data_standardized.csv')
+
+%table_state_data_ratio = readtable('train_static_states.csv');
+
+% Do not include HPSAUnderservedPop variable (not info for all states)
+variable_names = table_state_data_ratio.Properties.VariableNames;
+table_state_data_ratio = table_state_data_ratio(:,[variable_names(1:15) variable_names(17:end)]);
+
+variable_names = table_state_data_ratio.Properties.VariableNames;
+
+% Analyze Comorbidity data
+%table_state_data_ratio = table_state_data_ratio(:,[variable_names(1) variable_names(5) variable_names(7:11)]);
+
+% Analyze socioeconomic factors 
+%table_state_data_ratio = table_state_data_ratio(:,[variable_names(1) variable_names(15) variable_names(22:23) variable_names(26)]);
+
+% Analyze hospital capacity
+%table_state_data_ratio = table_state_data_ratio(:,[variable_names(1) variable_names(12:14)]);
+
+% Analyze social behavior
+%table_state_data_ratio = table_state_data_ratio(:,[variable_names(1) variable_names(17:21) variable_names(24:26)]);
+
+% Analyze demographics
+%table_state_data_ratio = table_state_data_ratio(:,[variable_names(1) variable_names(3:4) variable_names(6) variable_names(16)]);
+
+
+
+
+% For the clustering analysis we are not using total population neither
+% population density! (that is why start in column 5
+% table_state_data_ratio(:,5:end))
+
+column_start = 3; % 3 start from population, 4 start from density, 5 start from number of adults w/chronic cond
+for kc = 1:10
+    k = kc; % number of clusters
+
+    [clustering_id, c, sumd] = kmeans(table2array(table_state_data_ratio(:,column_start:end)), k);
+    
+    sumwithind(kc) = mean(sumd);
+end
+figure(2)
+plot(sumwithind, 'ko-', 'linewidt', 2)
+
+xlabel('k')
+ylabel('Average within-cluster sum of squares')
+title('K-means clustering using standarized data')
+set(gca, 'fontsize', 13)
+file_name = './figures/k_means_avg_withincluster';
+%saveas(gcf, file_name,'pdf')
+%saveas(gcf, file_name,'png')
+
+%% Performs k-mean clustering projecting in covid cases vs covid deaths AND elderly Pop vs Percentage of Adults w Chronic Cond
+
+k = 3; % number of clusters
+[clustering_id, c, sumd] = kmeans(table2array(table_state_data_ratio(:,column_start:end)), k);
+mean(sumd)
+
+figure(3)
+gscatter(table_state_data.Deaths, table_state_data.Cases, clustering_id, 'bgm',[], 25)
+hold on
+text(table_state_data.Deaths.*1.02, table_state_data.Cases, table_state_data.STATEAbbrv)
+hold off
+xlabel('COVID-19 cumulative deaths')
+ylabel('COVID-19 cumulative cases')
+legend('Cluster 1','Cluster 2','Cluster 3')
+legend box off
+set(gca, 'fontsize', 13, 'Xscale', 'log', 'Yscale', 'log')
+file_name = './figures/k3_covideaths_vs_covidcases';
+%saveas(gcf, file_name,'pdf')
+%saveas(gcf, file_name,'png')
+
+figure(4)
+gscatter(table_state_data_ratio.PopulationEstimate65_2017, table_state_data_ratio.NumAdultsChronicCond, clustering_id, 'bgm',[], 25)
+hold on
+%plot(c(:,14),c(:,3),'rx', 'linewidth', 2.5, 'MarkerSize', 13) % k= 3
+plot(c(:,12),c(:,2),'rx', 'linewidth', 2.5, 'MarkerSize', 13) % k= 4
+text(table_state_data_ratio.PopulationEstimate65_2017.*1.02, table_state_data_ratio.NumAdultsChronicCond, table_state_data_ratio.STATEAbbrv)
+hold off
+xlabel('Ratio of elderly people (\geq 65) per 100K')
+ylabel('Number of Adults per 100k pop with \geq 1 chronic condition')
+legend('Cluster 1','Cluster 2','Cluster 3', 'Cluster centroid')
+legend box off
+set(gca, 'fontsize', 13)
+file_name = './figures/k3_elderlys_vs_chronicCond_NoPop_NoDensity';
+%saveas(gcf, file_name,'pdf')
+%saveas(gcf, file_name,'png')
+
+
+
+%% PCA analysis
+
+[coeff,score,latent,tsquared,explained,mu] = pca(table2array(table_state_data_ratio(:, column_start:end)));
+
+figure(5)
+gscatter(score(:,1), score(:,2), clustering_id, 'bgm',[], 25)
+hold on
+text(score(:,1).*0.95, score(:,2), table_state_data_ratio.STATEAbbrv)
+hold off
+xlabel('1st Principal Component')
+ylabel('2nd Principal Component')
+legend('Cluster 1','Cluster 2','Cluster 3')
+legend box off
+set(gca, 'fontsize', 13, 'fontweight', 'bold')
+title('PCA')
+set(gcf, 'position',  [440   228   739   570])
+file_name = './figures/PCA';
+%saveas(gcf, file_name,'pdf')
+%saveas(gcf, file_name,'png')
+
+
+
+%% Correlation plot, finding correlations between variables in our data set using ratios instead of absolute values
+
+% Do not add DC (index 9), an outlier in terms of Pop Density, hence 
+% do for rows: [1:8 10:end-2]
+table_corr_data = table_state_country_ratio([1:8 10:end-2],:);
+
+table_corr_data.Deaths = table_state_data.Deaths([1:8 10:end]);
+table_corr_data.Cases = table_state_data.Cases([1:8 10:end]);
+
+state_corr_data = table_corr_data(:,{'Deaths', 'Cases', 'PopulationEstimate2019', 'PopulationDensity2010', 'NumAdultsChronicCond', 'DiabetesPercentage',  'HeartDiseaseMortality', 'RespMortalityRate2014' }); % get death and positive cases
+state_corr_data.Properties.VariableNames = {'Deaths', 'Cases', 'PoP', 'PoPDen', 'Adchron', 'Diabetes',  'HeartDisease', 'RespMort'};
+figure(6)
+corrplot(state_corr_data)
+set(gca, 'fontsize', 13)
+set(gcf, 'position',  [440   228   739   570])
+file_name = './figures/corrplot_covidvstatic';
+%saveas(gcf, file_name,'pdf')
+%saveas(gcf, file_name,'png')
+
+
+%% Map clustering analysis to the USA map
+
+figure(7)
+ax = usamap('all');
+set(ax, 'Visible', 'off')
+states = shaperead('usastatelo', 'UseGeoCoords', true);
+names_map = {states.Name};
+indexHawaii = strcmp('Hawaii',names_map);
+indexAlaska = strcmp('Alaska',names_map);
+indexConus = 1:numel(states);
+indexConus(indexHawaii|indexAlaska) = []; 
+names_map = [names_map(1) names_map(3:10) names_map(12:end)]; % exluce Alaska and Hawaii
+color_id = [];
+colors_map = [];
+blue = [0 0 1];
+green = [0 1 0];
+mag = [1 0 1];
+for i = 1:length(names_map)
+    ind = find(strcmp(names_map(i), names_abbrev.State));
+    color_id = clustering_id(ind);
+    if color_id == 1
+       colors_map = [colors_map;   blue];
+    elseif color_id == 2
+        colors_map = [colors_map;   green];
+    else
+        colors_map = [colors_map;   mag];
+    end      
+end
+
+faceColors = makesymbolspec('Polygon',...
+    {'INDEX', [1 length(names_map)], 'FaceColor', ... 
+    colors_map});
+
+
+if clustering_id(find(strcmp(names_abbrev.Code, 'AK'))) == 1
+    alaska_col = blue;
+elseif  clustering_id(find(strcmp(names_abbrev.Code, 'AK'))) == 2
+    alaska_col = green;
+else
+    alaska_col = mag;
+end
+
+if clustering_id(find(strcmp(names_abbrev.Code, 'HI'))) == 1
+    hawaii_col = blue;
+elseif  clustering_id(find(strcmp(names_abbrev.Code, 'HI'))) == 2
+    hawaii_col = green;
+else
+    hawaii_col = mag;
+end
+
+
+geoshow(ax(1), states(indexConus), 'DisplayType', 'polygon', 'SymbolSpec', faceColors )
+geoshow(ax(2), states(indexAlaska), 'FaceColor', alaska_col)
+geoshow(ax(3), states(indexHawaii), 'FaceColor', hawaii_col)
+
+for k = 1:3
+    setm(ax(k), 'Frame', 'off', 'Grid', 'off',...
+      'ParallelLabel', 'off', 'MeridianLabel', 'off')
+end
+title('K-means clustering projection onto US map', 'fontsize', 15)
+set(gcf, 'position',  [440   228   739   570])
+file_name = './figures/USMap_clusters';
+%saveas(gcf, file_name,'pdf')
+%saveas(gcf, file_name,'png')

@@ -1,0 +1,109 @@
+Gini Index of Income Inequality
+Population Reference Bureau prb.org
+"Sources: U.S. Census Bureau, American Community Survey ."
+
+FIPS,Name,Type,TimeFrame,Data
+01,Alabama,State,2006-2010,47
+01,Alabama,State,2014-2018,47.97
+02,Alaska,State,2006-2010,41.2
+02,Alaska,State,2014-2018,42.37
+04,Arizona,State,2006-2010,45.3
+04,Arizona,State,2014-2018,46.81
+05,Arkansas,State,2006-2010,45.9
+05,Arkansas,State,2014-2018,47.65
+06,California,State,2006-2010,46.9
+06,California,State,2014-2018,48.91
+08,Colorado,State,2006-2010,45.5
+08,Colorado,State,2014-2018,45.78
+09,Connecticut,State,2006-2010,48.2
+09,Connecticut,State,2014-2018,49.6
+10,Delaware,State,2006-2010,43.6
+10,Delaware,State,2014-2018,45.46
+11,District of Columbia,State,2014-2018,52.83
+11,District of Columbia,State,2006-2010,53.5
+12,Florida,State,2006-2010,47.1
+12,Florida,State,2014-2018,48.68
+13,Georgia,State,2006-2010,46.5
+13,Georgia,State,2014-2018,48.21
+15,Hawaii,State,2006-2010,43
+15,Hawaii,State,2014-2018,44.12
+16,Idaho,State,2006-2010,42.9
+16,Idaho,State,2014-2018,44.99
+17,Illinois,State,2006-2010,46.5
+17,Illinois,State,2014-2018,48.16
+18,Indiana,State,2006-2010,43.4
+18,Indiana,State,2014-2018,45.01
+19,Iowa,State,2006-2010,42.7
+19,Iowa,State,2014-2018,44.21
+20,Kansas,State,2006-2010,44.4
+20,Kansas,State,2014-2018,45.84
+21,Kentucky,State,2006-2010,46.4
+21,Kentucky,State,2014-2018,47.75
+22,Louisiana,State,2006-2010,47.5
+22,Louisiana,State,2014-2018,49.27
+23,Maine,State,2006-2010,43.4
+23,Maine,State,2014-2018,45.27
+24,Maryland,State,2006-2010,44.1
+24,Maryland,State,2014-2018,45.2
+25,Massachusetts,State,2006-2010,46.9
+25,Massachusetts,State,2014-2018,48.41
+26,Michigan,State,2006-2010,44.9
+26,Michigan,State,2014-2018,46.64
+27,Minnesota,State,2006-2010,43.8
+27,Minnesota,State,2014-2018,45.15
+28,Mississippi,State,2006-2010,47.4
+28,Mississippi,State,2014-2018,47.84
+29,Missouri,State,2006-2010,45
+29,Missouri,State,2014-2018,46.39
+30,Montana,State,2006-2010,43.7
+30,Montana,State,2014-2018,45.92
+31,Nebraska,State,2006-2010,43.2
+31,Nebraska,State,2014-2018,44.33
+32,Nevada,State,2006-2010,43.7
+32,Nevada,State,2014-2018,45.68
+33,New Hampshire,State,2006-2010,42.1
+33,New Hampshire,State,2014-2018,43.84
+34,New Jersey,State,2006-2010,46.3
+34,New Jersey,State,2014-2018,48.1
+35,New Mexico,State,2006-2010,45.9
+35,New Mexico,State,2014-2018,47.88
+36,New York,State,2006-2010,49.8
+36,New York,State,2014-2018,51.37
+37,North Carolina,State,2006-2010,46.3
+37,North Carolina,State,2014-2018,47.69
+38,North Dakota,State,2006-2010,44.4
+38,North Dakota,State,2014-2018,45.79
+39,Ohio,State,2006-2010,45
+39,Ohio,State,2014-2018,46.53
+40,Oklahoma,State,2006-2010,45.9
+40,Oklahoma,State,2014-2018,46.72
+41,Oregon,State,2006-2010,44.6
+41,Oregon,State,2014-2018,46.1
+42,Pennsylvania,State,2006-2010,45.8
+42,Pennsylvania,State,2014-2018,47.06
+44,Rhode Island,State,2006-2010,45.6
+44,Rhode Island,State,2014-2018,47.48
+45,South Carolina,State,2006-2010,46.1
+45,South Carolina,State,2014-2018,47.27
+46,South Dakota,State,2006-2010,44
+46,South Dakota,State,2014-2018,44.57
+47,Tennessee,State,2006-2010,46.9
+47,Tennessee,State,2014-2018,48.02
+48,Texas,State,2006-2010,47.2
+48,Texas,State,2014-2018,48.06
+49,Utah,State,2006-2010,41.3
+49,Utah,State,2014-2018,42.64
+50,Vermont,State,2006-2010,43.2
+50,Vermont,State,2014-2018,44.66
+51,Virginia,State,2006-2010,45.7
+51,Virginia,State,2014-2018,46.82
+53,Washington,State,2006-2010,44.1
+53,Washington,State,2014-2018,45.68
+54,West Virginia,State,2006-2010,45.4
+54,West Virginia,State,2014-2018,46.43
+55,Wisconsin,State,2006-2010,42.9
+55,Wisconsin,State,2014-2018,44.6
+56,Wyoming,State,2006-2010,42.5
+56,Wyoming,State,2014-2018,43.47
+US,United States,Country,2006-2010,46.7
+US,United States,Country,2014-2018,48.22
