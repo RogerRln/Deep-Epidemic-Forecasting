@@ -19,26 +19,14 @@ Forecasting emerging pandemics such as COVID-19 using purely data-driven models 
 <img src="images/figures/different_groups_USMap_2.png" width="850" height="500"/>
 <br> We further analyze how the clusters change using subsets of static data instead of all data together. We partition our data set into groups containing only demographics, only comorbidities, only social behavior, etc. The map on the bottom right was generated using all data together.
 
+## Dynamic Module and Forecasting
 
+<img src="images/region_similarity_2.png" width="550" height="350"/>
+<br> Schematic of our Deep Epidemic Forecasting model.
 
-```markdown
-Syntax highlighted code block
+<img src="images/table_results.png" width="800" height="250"/>
+<br> For measuring the performance of the forecasting model we calculate mean absolute error (MAE) values. We show in <b>Bold<\b> the cells where by incorporating regional similarity our model performance improves.
 
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-
-```
 
 ## Slides & Code
 
