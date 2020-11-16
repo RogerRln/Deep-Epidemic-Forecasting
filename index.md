@@ -25,7 +25,7 @@ Forecasting emerging pandemics such as COVID-19 using purely data-driven models 
 <br> Schematic of our Deep Epidemic Forecasting model.
 
 <img src="images/table_results.png" width="800" height="250"/>
-<br> For measuring the performance of the forecasting model we calculate mean absolute error (MAE) values. We show in <b>Bold<\b> the cells where by incorporating regional similarity our model performance improves.
+<br> For measuring the performance of the forecasting model we calculate mean absolute error (MAE) values. We show in <b>Bold</b> the cells where by incorporating regional similarity our model performance improves.
 
 
 ## Slides & Code
