@@ -30,9 +30,9 @@ Forecasting emerging pandemics such as COVID-19 using purely data-driven models 
 
 ## Slides & Code
 
-You can find our project slides here [slides](https://github.com/RogerRln/Deep-Epidemic-Forecasting/blob/main/DOC/Project_slides.pptx)
+You can find our project slides here [slides](https://github.com/RogerRln/Deep-Epidemic-Forecasting/blob/main/DOC/Project_slides_alex.pptx)
 
-You can find our written project here [project (PDF)](https://github.com/RogerRln/Deep-Epidemic-Forecasting/blob/main/DOC/)
+You can find our written project here [project (PDF)](https://github.com/RogerRln/Deep-Epidemic-Forecasting/blob/main/DOC/CSE_8803_Project.pdf)
 
 You can find our code here [code](https://github.com/RogerRln/Deep-Epidemic-Forecasting/tree/main/SRC%20(code))
 
